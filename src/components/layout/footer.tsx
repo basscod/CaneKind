@@ -23,7 +23,7 @@ const SocialIcon = ({
   return (
     <a 
       href={href}
-      className="bg-sugarcane-yellow w-10 h-10 rounded-full flex items-center justify-center text-text-primary hover:bg-secondary-yellow transition-colors"
+      className="bg-sugarcane-yellow/80 backdrop-filter backdrop-blur-md border border-sugarcane-yellow text-text-primary hover:bg-sugarcane-yellow/90 shadow-md w-10 h-10 p-0 flex items-center justify-center rounded-full transition-all duration-300"
       target="_blank"
       rel="noopener noreferrer"
     >

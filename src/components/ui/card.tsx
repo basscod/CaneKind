@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { Button } from "./button";
 
 type CardProps = {
   children: React.ReactNode;
@@ -55,12 +56,11 @@ export const ProductCard = ({
           </span>
         </div>
         <p className="text-text-secondary mb-4">{description}</p>
-        <Link 
-          href={ctaHref}
-          className="block w-full bg-sugarcane-yellow text-text-primary font-medium py-2 rounded-full hover:bg-secondary-yellow transition-colors text-center"
-        >
-          {ctaLabel}
-        </Link>
+        <Button variant="secondary" className="w-full" asChild>
+          <Link href={ctaHref}>
+            {ctaLabel}
+          </Link>
+        </Button>
       </div>
     </div>
   );
