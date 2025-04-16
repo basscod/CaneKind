@@ -25,7 +25,7 @@ export const Hero = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Button variant="secondary" size="lg">Shop Now</Button>
-            <Button variant="outline" size="lg">Learn More</Button>
+            <Button variant="outline" size="lg">Craft Your Own</Button>
           </div>
         </div>
       </div>

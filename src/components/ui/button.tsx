@@ -25,8 +25,8 @@ export const Button = ({
   
   const variantClasses = {
     primary: "glass-card border border-white/30 text-text-primary hover:bg-white/20",
-    secondary: "bg-sugarcane-yellow text-text-primary hover:bg-secondary-yellow yellow-glow",
-    outline: "border-2 border-sugarcane-yellow text-text-primary hover:bg-sugarcane-yellow/10"
+    secondary: "bg-sugarcane-yellow/30 backdrop-filter backdrop-blur-md border border-sugarcane-yellow text-text-primary hover:bg-sugarcane-yellow/70 shadow-md",
+    outline: "bg-transparent backdrop-filter backdrop-blur-md border-2 border-[#cecece] text-[#4d4d4d] shadow-[inset_4px_4px_10px_#bcbcbc,inset_-4px_-4px_10px_#ffffff] hover:shadow-[inset_2px_2px_5px_#bcbcbc,inset_-2px_-2px_5px_#ffffff,2px_2px_5px_#bcbcbc,-2px_-2px_5px_#ffffff] focus:shadow-[inset_2px_2px_5px_#bcbcbc,inset_-2px_-2px_5px_#ffffff,2px_2px_5px_#bcbcbc,-2px_-2px_5px_#ffffff] focus:outline-none"
   };
   
   const sizeClasses = {
