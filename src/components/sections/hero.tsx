@@ -19,7 +19,7 @@ export const Hero = () => {
       <div className="container mx-auto px-6 relative z-10">
         <div className="glass-card max-w-2xl p-10 md:p-12">
           <h1 className="mb-4">
-            Discover the <span className="text-sugarcane-yellow">Natural Sweetness</span> of Premium Sugarcane Juice
+            Discover the <span className="text-white">Natural Sweetness</span> of Premium Sugarcane Juice
           </h1>
           <p className="text-lg mb-8">
             Refreshing, organic, and packed with nutrients. Experience the authentic taste of carefully crafted sugarcane juice, sourced from the finest farms and delivered to your doorstep.
