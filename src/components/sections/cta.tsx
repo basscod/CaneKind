@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "../ui/button";
+import Link from "next/link";
 
 export const CallToAction = () => {
   return (
@@ -14,8 +15,12 @@ export const CallToAction = () => {
             Join thousands of happy customers who've made CaneKind a part of their healthy lifestyle. Order now and get free delivery on your first purchase.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button variant="secondary" size="lg">Shop Now</Button>
-            <Button variant="outline" size="lg">Learn More</Button>
+            <Button variant="secondary" size="lg" asChild>
+              <Link href="/products">Shop Now</Link>
+            </Button>
+            <Button variant="outline" size="lg" asChild>
+              <Link href="/customize">Craft Your Own</Link>
+            </Button>
           </div>
         </div>
       </div>

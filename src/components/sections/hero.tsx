@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "../ui/button";
+import Link from "next/link";
 
 export const Hero = () => {
   return (
@@ -7,11 +8,11 @@ export const Hero = () => {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img 
-          src="/images/sugarcane-field.png" 
-          alt="Sugarcane Field" 
-          className="w-full h-full object-cover"
+          src="/images/hero_bg.jpg" 
+          alt="A refreshing glass of sugarcane juice with ice cubes and a striped straw, surrounded by sugarcane stalks, a halved lemon, tropical leaves, and abstract floating bubbles on a warm yellow background." 
+          className="w-full h-full object-cover object-right"
         />
-        <div className="absolute inset-0 bg-white/20 backdrop-blur-[2px]"></div>
+        <div className="absolute inset-0 bg-white/20"></div>
       </div>
       
       {/* Content */}
@@ -24,8 +25,12 @@ export const Hero = () => {
             Refreshing, organic, and packed with nutrients. Experience the authentic taste of carefully crafted sugarcane juice, sourced from the finest farms and delivered to your doorstep.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Button variant="secondary" size="lg">Shop Now</Button>
-            <Button variant="outline" size="lg">Craft Your Own</Button>
+            <Button variant="secondary" size="lg" asChild>
+              <Link href="/products">Shop Now</Link>
+            </Button>
+            <Button variant="outline" size="lg" asChild>
+              <Link href="/customize">Craft Your Own</Link>
+            </Button>
           </div>
         </div>
       </div>
