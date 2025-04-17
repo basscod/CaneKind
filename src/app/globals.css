@@ -86,11 +86,6 @@ p {
   position: relative;
   display: inline-block;
   transition: all 0.3s ease;
-  text-shadow: 
-    -0.5px -0.5px 0 rgba(0, 0, 0, 0.15),  
-    0.5px -0.5px 0 rgba(0, 0, 0, 0.15),
-    -0.5px 0.5px 0 rgba(0, 0, 0, 0.15),
-    0.5px 0.5px 0 rgba(0, 0, 0, 0.15);
 }
 
 .text-sugarcane-yellow:hover {
