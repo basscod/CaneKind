@@ -4,6 +4,7 @@ export interface Product {
   price: string;
   imageSrc: string;
   description: string;
+  category: "Classic" | "Blends" | "Special Edition";
 }
 
 export const products: Product[] = [
@@ -12,41 +13,47 @@ export const products: Product[] = [
     title: "Pure Sugarcane Juice",
     price: "£4.99",
     imageSrc: "/images/pure-sugarcane.jpg",
-    description: "Our classic, 100% natural sugarcane juice with no additives or preservatives."
+    description: "Our classic, 100% natural sugarcane juice with no additives or preservatives.",
+    category: "Classic"
   },
   {
     id: 2,
     title: "Lemon Zest Blend",
     price: "£5.49",
     imageSrc: "/images/lemon-blend.jpg",
-    description: "Fresh sugarcane juice with a tangy twist of lemon to brighten your day."
+    description: "Fresh sugarcane juice with a tangy twist of lemon to brighten your day.",
+    category: "Blends"
   },
   {
     id: 3,
     title: "Ginger Fusion",
     price: "£5.99",
     imageSrc: "/images/ginger-fusion.jpg",
-    description: "Spicy ginger meets sweet sugarcane in this energizing, warming blend."
+    description: "Spicy ginger meets sweet sugarcane in this energizing, warming blend.",
+    category: "Blends"
   },
   {
     id: 4,
     title: "Mint Refresh",
     price: "£5.49",
     imageSrc: "/images/mint-refresh.jpg",
-    description: "Cool mint infused with pure sugarcane juice for a refreshing experience."
+    description: "Cool mint infused with pure sugarcane juice for a refreshing experience.",
+    category: "Blends"
   },
   {
     id: 5,
     title: "Berry Blast",
     price: "£6.49",
     imageSrc: "/images/berry-blast.jpg",
-    description: "Sweet sugarcane juice blended with mixed berries for a fruity taste."
+    description: "Sweet sugarcane juice blended with mixed berries for a fruity taste.",
+    category: "Special Edition"
   },
   {
     id: 6,
     title: "Coconut Delight",
     price: "£6.99",
     imageSrc: "/images/coconut-delight.jpg",
-    description: "Tropical coconut flavor combined with sugarcane for an exotic treat."
+    description: "Tropical coconut flavor combined with sugarcane for an exotic treat.",
+    category: "Special Edition"
   }
 ]; 

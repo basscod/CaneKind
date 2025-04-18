@@ -34,12 +34,17 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             <div className="flex flex-col md:flex-row gap-10">
               {/* Product Image */}
               <div className="md:w-1/2">
-                <div className="rounded-lg overflow-hidden h-[400px]">
+                <div className="rounded-lg overflow-hidden h-[400px] relative">
                   <img 
                     src={product.imageSrc} 
                     alt={product.title} 
                     className="w-full h-full object-cover"
                   />
+                  <div className="absolute top-4 left-4">
+                    <span className="bg-sugarcane-yellow/90 px-3 py-1 rounded-full text-text-primary text-sm font-medium">
+                      {product.category}
+                    </span>
+                  </div>
                 </div>
               </div>
               
@@ -121,12 +126,17 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             {relatedProducts.map((relatedProduct) => (
               <Link key={relatedProduct.id} href={`/products/${relatedProduct.id}`}>
                 <Card className="transition-transform hover:scale-[1.02]">
-                  <div className="h-48 rounded-t-lg overflow-hidden">
+                  <div className="h-48 rounded-t-lg overflow-hidden relative">
                     <img 
                       src={relatedProduct.imageSrc} 
                       alt={relatedProduct.title} 
                       className="w-full h-full object-cover"
                     />
+                    <div className="absolute top-2 left-2">
+                      <span className="bg-sugarcane-yellow/90 px-3 py-1 rounded-full text-text-primary text-sm font-medium">
+                        {relatedProduct.category}
+                      </span>
+                    </div>
                   </div>
                   <div className="p-4">
                     <h3 className="font-semibold">{relatedProduct.title}</h3>

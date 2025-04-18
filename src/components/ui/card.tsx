@@ -29,6 +29,7 @@ export const ProductCard = ({
   price,
   imageSrc,
   description,
+  category,
   ctaLabel = "Buy Now",
   ctaHref = "#"
 }: {
@@ -36,6 +37,7 @@ export const ProductCard = ({
   price: string;
   imageSrc: string;
   description: string;
+  category?: string;
   ctaLabel?: string;
   ctaHref?: string;
 }) => {
@@ -47,6 +49,13 @@ export const ProductCard = ({
           alt={title} 
           className="w-full h-full object-cover"
         />
+        {category && (
+          <div className="absolute top-2 left-2">
+            <span className="bg-sugarcane-yellow/90 px-3 py-1 rounded-full text-text-primary text-sm font-medium">
+              {category}
+            </span>
+          </div>
+        )}
       </div>
       <div className="p-5">
         <div className="flex justify-between items-start mb-2">
