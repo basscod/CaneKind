@@ -1,18 +1,44 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import { PageLayout } from "@/components/layout/page-layout";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, ProductCard } from "@/components/ui/card";
 import { products } from "@/lib/data/products";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { useCart } from "@/lib/context/cart-context";
+import { QuantityModal } from "@/components/ui/quantity-modal";
 
-export default function ProductDetailPage({ params }: { params: { id: string } }) {
-  const productId = parseInt(params.id);
+interface PageParams {
+  id: string;
+}
+
+export default function ProductDetailPage({ params }: { params: PageParams | Promise<PageParams> }) {
+  const [quantity, setQuantity] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { addToCart } = useCart();
+  
+  // Unwrap params using React.use() if it's a promise
+  const unwrappedParams = params instanceof Promise ? React.use(params) : params;
+  const productId = parseInt(unwrappedParams.id);
   const product = products.find(p => p.id === productId);
   
   if (!product) {
     notFound();
   }
+
+  const handleIncrement = () => {
+    setQuantity(prev => prev + 1);
+  };
+
+  const handleDecrement = () => {
+    setQuantity(prev => (prev > 1 ? prev - 1 : 1));
+  };
+
+  const handleAddToCartClick = () => {
+    setIsModalOpen(true);
+  };
 
   // Find related products (excluding current product)
   const relatedProducts = products
@@ -34,12 +60,17 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             <div className="flex flex-col md:flex-row gap-10">
               {/* Product Image */}
               <div className="md:w-1/2">
-                <div className="rounded-lg overflow-hidden h-[400px]">
+                <div className="rounded-lg overflow-hidden h-[400px] relative">
                   <img 
                     src={product.imageSrc} 
                     alt={product.title} 
                     className="w-full h-full object-cover"
                   />
+                  <div className="absolute top-4 left-4">
+                    <span className="bg-sugarcane-yellow/90 px-3 py-1 rounded-full text-text-primary text-sm font-medium">
+                      {product.category}
+                    </span>
+                  </div>
                 </div>
               </div>
               
@@ -68,15 +99,32 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                 <div className="mb-8">
                   <h3 className="text-lg font-semibold mb-2">Quantity</h3>
                   <div className="flex items-center glass-card inline-flex p-1 rounded-full">
-                    <button className="w-8 h-8 flex items-center justify-center hover:text-sugarcane-yellow">-</button>
-                    <span className="w-12 text-center">1</span>
-                    <button className="w-8 h-8 flex items-center justify-center hover:text-sugarcane-yellow">+</button>
+                    <button 
+                      className="w-8 h-8 flex items-center justify-center hover:text-sugarcane-yellow"
+                      onClick={handleDecrement}
+                    >
+                      -
+                    </button>
+                    <span className="w-12 text-center">{quantity}</span>
+                    <button 
+                      className="w-8 h-8 flex items-center justify-center hover:text-sugarcane-yellow"
+                      onClick={handleIncrement}
+                    >
+                      +
+                    </button>
                   </div>
                 </div>
                 
                 {/* Add to Cart */}
                 <div className="space-y-4">
-                  <Button variant="secondary" size="lg" className="w-full">Add to Cart</Button>
+                  <Button 
+                    variant="secondary" 
+                    size="lg" 
+                    className="w-full"
+                    onClick={handleAddToCartClick}
+                  >
+                    Add to Cart
+                  </Button>
                   <Button variant="outline" size="lg" className="w-full">Add to Favorites</Button>
                 </div>
                 
@@ -119,27 +167,28 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {relatedProducts.map((relatedProduct) => (
-              <Link key={relatedProduct.id} href={`/products/${relatedProduct.id}`}>
-                <Card className="transition-transform hover:scale-[1.02]">
-                  <div className="h-48 rounded-t-lg overflow-hidden">
-                    <img 
-                      src={relatedProduct.imageSrc} 
-                      alt={relatedProduct.title} 
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold">{relatedProduct.title}</h3>
-                    <div className="mt-2">
-                      <span className="text-sugarcane-yellow font-semibold">{relatedProduct.price}</span>
-                    </div>
-                  </div>
-                </Card>
-              </Link>
+              <div key={relatedProduct.id} className="transform scale-90 origin-top">
+                <ProductCard 
+                  title={relatedProduct.title}
+                  price={relatedProduct.price}
+                  imageSrc={relatedProduct.imageSrc}
+                  description={relatedProduct.description}
+                  category={relatedProduct.category}
+                  ctaHref={`/products/${relatedProduct.id}`}
+                  ctaLabel="View Product"
+                />
+              </div>
             ))}
           </div>
         </div>
       </section>
+
+      {/* Quantity Modal */}
+      <QuantityModal 
+        product={product}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </PageLayout>
   );
 } 

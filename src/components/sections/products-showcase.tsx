@@ -24,6 +24,7 @@ export const ProductsShowcase = () => {
               price={product.price}
               imageSrc={product.imageSrc}
               description={product.description}
+              category={product.category}
               ctaHref={`/products/${product.id}`}
             />
           ))}

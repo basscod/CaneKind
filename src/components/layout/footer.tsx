@@ -84,7 +84,6 @@ export const Footer = () => {
             <h4 className="font-semibold mb-4">Support</h4>
             <ul className="space-y-2">
               <li><FooterLink href="/faq">FAQ</FooterLink></li>
-              <li><FooterLink href="/shipping">Shipping & Returns</FooterLink></li>
               <li><FooterLink href="/privacy">Privacy Policy</FooterLink></li>
               <li><FooterLink href="/terms">Terms & Conditions</FooterLink></li>
             </ul>

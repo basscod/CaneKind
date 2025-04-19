@@ -40,8 +40,33 @@
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
+@utility frosty-glass-panel {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    0 1px 2px rgba(255, 255, 255, 0.4) inset;
+}
+
 @utility yellow-glow {
   box-shadow: 0 0 15px rgba(252, 220, 88, 0.5);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out forwards;
 }
 
 body {
