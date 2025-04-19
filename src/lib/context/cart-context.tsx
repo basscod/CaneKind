@@ -28,7 +28,23 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const savedCart = localStorage.getItem("cart");
     if (savedCart) {
       try {
-        setItems(JSON.parse(savedCart));
+        const parsedCart = JSON.parse(savedCart);
+        
+        // Filter out any items with problematic image paths
+        const validItems = parsedCart.filter((item: CartItem) => {
+          const path = item.product.imageSrc;
+          // Filter out any items with the problematic path or with paths that don't exist
+          return !path.includes('/products/custom-juice.jpg');
+        });
+        
+        // Only update if we've filtered items
+        if (validItems.length !== parsedCart.length) {
+          console.log(`Filtered out ${parsedCart.length - validItems.length} items with invalid image paths`);
+          localStorage.setItem("cart", JSON.stringify(validItems));
+          setItems(validItems);
+        } else {
+          setItems(parsedCart);
+        }
       } catch (error) {
         console.error("Failed to parse cart from localStorage:", error);
       }
