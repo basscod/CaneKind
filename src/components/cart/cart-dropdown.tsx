@@ -66,11 +66,25 @@ export const CartDropdown = () => {
             <div className="max-h-64 overflow-y-auto">
               {items.map((item) => (
                 <div key={item.product.id} className="flex items-start py-2 border-b border-white/10">
-                  <img
-                    src={item.product.imageSrc}
-                    alt={item.product.title}
-                    className="w-12 h-12 object-cover rounded mr-3"
-                  />
+                  {item.product.title.includes("Custom") ? (
+                    <img
+                      src="/images/subscription-box.jpg"
+                      alt={item.product.title}
+                      className="w-12 h-12 object-cover rounded mr-3"
+                    />
+                  ) : (
+                    <img
+                      src={item.product.imageSrc}
+                      alt={item.product.title}
+                      className="w-12 h-12 object-cover rounded mr-3"
+                      onError={(e) => {
+                        console.error(`Failed to load image: ${item.product.imageSrc}`);
+                        console.log("Product details:", item.product);
+                        // Use a direct path that we know exists
+                        e.currentTarget.src = "/images/berry-blast.jpg";
+                      }}
+                    />
+                  )}
                   <div className="flex-1">
                     <h4 className="text-sm font-medium">{item.product.title}</h4>
                     <div className="flex items-center justify-between">
