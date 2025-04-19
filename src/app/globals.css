@@ -4,8 +4,9 @@
   /* Base colors */
   --white: #FFFFFF;
   --glass-frost: rgba(255, 255, 255, 0.25);
-  --sugarcane-yellow: #FCDC58;
+  --sugarcane-yellow: #fcdc58;
   --secondary-yellow: #FFD700;
+  --sample-frost: rgba(255, 239, 173, 0.75);
   
   /* Text colors */
   --text-primary: #333333;
@@ -41,7 +42,7 @@
 }
 
 @utility frosty-glass-panel {
-  background: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 239, 173, 0.8);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.3);
