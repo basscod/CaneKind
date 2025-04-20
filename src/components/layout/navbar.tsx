@@ -48,6 +48,12 @@ export const Navbar = () => {
 
           {/* User and Cart */}
           <div className="flex items-center space-x-4">
+            <Link
+              href="/auth"
+              className="hidden sm:block text-text-primary hover:text-sugarcane-yellow transition-colors duration-300 px-4 py-1.5 border border-sugarcane-yellow/50 rounded-full text-sm"
+            >
+              Sign In
+            </Link>
             <CartDropdown />
             <UserProfileIcon />
             
