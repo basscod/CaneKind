@@ -8,128 +8,124 @@ import Link from "next/link";
 import { useAuth } from "@/lib/context/auth-context";
 import { useRouter } from "next/navigation";
 
+// Remove external API base URL and use relative path for proxy
+// const API_BASE_URL = "https://cane-crew-server-devops65.replit.app";
+
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   
-  const { login, signup, isLoading, error, user, token } = useAuth();
+  const { login, user } = useAuth();
   const router = useRouter();
 
-  // Test API connectivity when the component mounts
+  // Redirect if user is already logged in
   useEffect(() => {
-    // Simple fetch to test if the API server is reachable
-    const testApiConnection = async () => {
-      try {
-        const response = await fetch('https://cane-crew-server-devops65.replit.app');
-        console.log('API server connectivity test:', response.status);
-      } catch (error) {
-        console.error('API server connectivity test failed:', error);
-      }
-    };
-    
-    testApiConnection();
-    
-    // Check local storage for auth mode on mount
+    if (user) {
+      router.push('/');
+    }
+  }, [user, router]);
+
+  // Check local storage for auth mode on mount
+  useEffect(() => {
     const authMode = localStorage.getItem('authMode');
     if (authMode === 'signup') {
       setIsLogin(false);
       // Clear the storage value after using it
       localStorage.removeItem('authMode');
     }
-    
-    // If user is already logged in, redirect to home page
-    if (user && token) {
-      router.push('/');
-    }
-  }, [user, token, router]);
-
-  // Client-side validation function
-  const validateInputs = () => {
-    // Email validation using regex
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setErrorMsg("Please enter a valid email address.");
-      return false;
-    }
-    
-    // Password validation - at least 8 characters
-    if (password.length < 8) {
-      setErrorMsg("Password should be at least 8 characters long.");
-      return false;
-    }
-    
-    // First name validation (only when signing up)
-    if (!isLogin && firstName.trim() === "") {
-      setErrorMsg("First name is required.");
-      return false;
-    }
-    
-    return true;
-  };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMsg("");
-    setSuccessMsg("");
-    
-    // Validate inputs before proceeding
-    if (!validateInputs()) {
-      return;
-    }
-    
-    setLoading(true);
+    // Reset status messages
+    setError("");
+    setSuccess("");
+    setIsLoading(true);
     
     try {
       if (isLogin) {
-        // Handle login
-        await login({
-          email,
-          password
-        });
-      } else {
-        // Handle signup
-        console.log("Attempting signup with:", { 
-          first_name: firstName, 
-          last_name: lastName || undefined,
-          email 
-        });
+        // Login using auth context
+        const loginSuccess = await login(email, password);
         
-        await signup({
-          first_name: firstName,
-          last_name: lastName || undefined,
-          email,
-          password
-        });
-        setSuccessMsg("Account created successfully! You can now log in.");
-        setIsLogin(true);
-      }
-    } catch (err: any) {
-      console.error("Authentication error:", err);
-      // Log more details about the error
-      console.error("Error name:", err.name);
-      console.error("Error message:", err.message);
-      console.error("Error stack:", err.stack);
-      
-      // Handle different error codes
-      if (err.name === "409") {
-        setErrorMsg("This email is already registered. Please log in instead.");
-      } else if (err.name === "401") {
-        setErrorMsg("Invalid email or password. Please try again.");
-      } else if (err.name === "400") {
-        setErrorMsg("Missing or invalid fields. Please check your information.");
-      } else if (err.name === "500") {
-        setErrorMsg("Server error. Please try again later.");
+        if (loginSuccess) {
+          setSuccess("Login successful! Redirecting...");
+          // Router will handle redirection based on useEffect above
+        } else {
+          setError("Invalid email or password");
+        }
       } else {
-        setErrorMsg(err.message || "An error occurred. Please try again.");
+        // Sign up functionality - using the local API proxy
+        const response = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({
+            first_name: firstName,
+            last_name: lastName,
+            email,
+            password,
+          }),
+        });
+
+        let data;
+        try {
+          // Try to parse the response as JSON
+          data = await response.json();
+        } catch (e) {
+          // If it fails, get the response as text
+          data = await response.text();
+        }
+        
+        console.log('Response status:', response.status);
+        console.log('Response data:', data);
+        
+        if (response.ok) {
+          setSuccess(`Account created successfully for ${email}`);
+          // Clear form fields after successful signup
+          setFirstName("");
+          setLastName("");
+          setEmail("");
+          setPassword("");
+          // Switch to login view after successful signup
+          setTimeout(() => {
+            setIsLogin(true);
+          }, 2000);
+        } else {
+          // Handle different error types
+          switch (response.status) {
+            case 400:
+              setError("Missing fields or invalid information");
+              break;
+            case 409:
+              setError("An account with this email already exists");
+              break;
+            case 500:
+              setError("Server error. Please try again later");
+              break;
+            default:
+              setError(`Error: ${typeof data === 'string' ? data : JSON.stringify(data)}`);
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Auth error:", err);
+      
+      // Provide more detailed error information
+      if (err instanceof TypeError && err.message.includes('fetch')) {
+        setError("Network error: Cannot connect to the server. Please try again later.");
+      } else {
+        setError("Network error. Please check your connection and try again.");
       }
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -151,27 +147,23 @@ export default function Auth() {
           <div className="glass-card max-w-md mx-auto p-8 md:p-10">
             <h2 className="text-center mb-6">{isLogin ? "Welcome Back" : "Join CaneKind"}</h2>
             
-            {errorMsg && (
-              <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded flex items-start">
-                <svg className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-                <div>{errorMsg}</div>
+            {/* Success message */}
+            {success && (
+              <div className="mb-4 p-2 bg-green-100 border border-green-400 text-green-700 rounded">
+                {success}
               </div>
             )}
-            
-            {successMsg && (
-              <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded flex items-start">
-                <svg className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <div>{successMsg}</div>
+
+            {/* Error message */}
+            {error && (
+              <div className="mb-4 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
+                {error}
               </div>
             )}
             
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && (
-                <>
+                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="firstName" className="block text-text-primary mb-2">First Name</label>
                     <Input 
@@ -179,22 +171,22 @@ export default function Auth() {
                       type="text" 
                       value={firstName} 
                       onChange={(e) => setFirstName(e.target.value)} 
-                      placeholder="Enter your first name"
+                      placeholder="First name"
                       required
                     />
                   </div>
-                  
                   <div>
-                    <label htmlFor="lastName" className="block text-text-primary mb-2">Last Name (Optional)</label>
+                    <label htmlFor="lastName" className="block text-text-primary mb-2">Last Name</label>
                     <Input 
                       id="lastName"
                       type="text" 
                       value={lastName} 
                       onChange={(e) => setLastName(e.target.value)} 
-                      placeholder="Enter your last name"
+                      placeholder="Last name"
+                      required
                     />
                   </div>
-                </>
+                </div>
               )}
               
               <div>
@@ -233,9 +225,14 @@ export default function Auth() {
                 type="submit" 
                 variant="secondary" 
                 className="w-full"
-                disabled={loading || isLoading}
+                disabled={isLoading}
               >
-                {loading || isLoading ? "Processing..." : (isLogin ? "Sign In" : "Create Account")}
+                {isLoading 
+                  ? 'Processing...' 
+                  : isLogin 
+                    ? "Sign In" 
+                    : "Create Account"
+                }
               </Button>
             </form>
             
@@ -244,12 +241,9 @@ export default function Auth() {
                 {isLogin ? "Don't have an account?" : "Already have an account?"}
                 <button 
                   type="button"
-                  onClick={() => {
-                    setIsLogin(!isLogin);
-                    setErrorMsg("");
-                    setSuccessMsg("");
-                  }} 
+                  onClick={() => setIsLogin(!isLogin)} 
                   className="text-sugarcane-yellow hover:underline ml-2"
+                  disabled={isLoading}
                 >
                   {isLogin ? "Sign Up" : "Sign In"}
                 </button>
@@ -269,7 +263,7 @@ export default function Auth() {
               </div>
               
               <div className="mt-6 grid grid-cols-2 gap-4">
-                <Button variant="outline" className="flex items-center justify-center gap-2" type="button">
+                <Button variant="outline" className="flex items-center justify-center gap-2">
                   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -278,7 +272,7 @@ export default function Auth() {
                   </svg>
                   Google
                 </Button>
-                <Button variant="outline" className="flex items-center justify-center gap-2" type="button">
+                <Button variant="outline" className="flex items-center justify-center gap-2">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/>
                   </svg>
