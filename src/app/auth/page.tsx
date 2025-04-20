@@ -1,31 +1,78 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { PageLayout } from "@/components/layout/page-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { useAuth } from "@/lib/context/auth-context";
+import { useRouter } from "next/navigation";
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+  
+  const { login, signup, isLoading, error, user, token } = useAuth();
+  const router = useRouter();
 
   // Check local storage for auth mode on mount
-  React.useEffect(() => {
+  useEffect(() => {
     const authMode = localStorage.getItem('authMode');
     if (authMode === 'signup') {
       setIsLogin(false);
       // Clear the storage value after using it
       localStorage.removeItem('authMode');
     }
-  }, []);
+    
+    // If user is already logged in, redirect to home page
+    if (user && token) {
+      router.push('/');
+    }
+  }, [user, token, router]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle authentication logic here
-    console.log(isLogin ? "Logging in" : "Signing up", { email, password, name });
+    setErrorMsg("");
+    setSuccessMsg("");
+    setLoading(true);
+    
+    try {
+      if (isLogin) {
+        // Handle login
+        await login({
+          email,
+          password
+        });
+      } else {
+        // Handle signup
+        await signup({
+          first_name: firstName,
+          last_name: lastName || undefined,
+          email,
+          password
+        });
+        setSuccessMsg("Account created successfully! You can now log in.");
+        setIsLogin(true);
+      }
+    } catch (err: any) {
+      console.error("Authentication error:", err);
+      // Handle different error codes
+      if (err.name === "409") {
+        setErrorMsg("This email is already registered. Please log in instead.");
+      } else if (err.name === "401") {
+        setErrorMsg("Invalid email or password. Please try again.");
+      } else {
+        setErrorMsg(err.message || "An error occurred. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -46,19 +93,44 @@ export default function Auth() {
           <div className="glass-card max-w-md mx-auto p-8 md:p-10">
             <h2 className="text-center mb-6">{isLogin ? "Welcome Back" : "Join CaneKind"}</h2>
             
+            {errorMsg && (
+              <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                {errorMsg}
+              </div>
+            )}
+            
+            {successMsg && (
+              <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+                {successMsg}
+              </div>
+            )}
+            
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && (
-                <div>
-                  <label htmlFor="name" className="block text-text-primary mb-2">Full Name</label>
-                  <Input 
-                    id="name"
-                    type="text" 
-                    value={name} 
-                    onChange={(e) => setName(e.target.value)} 
-                    placeholder="Enter your name"
-                    required
-                  />
-                </div>
+                <>
+                  <div>
+                    <label htmlFor="firstName" className="block text-text-primary mb-2">First Name</label>
+                    <Input 
+                      id="firstName"
+                      type="text" 
+                      value={firstName} 
+                      onChange={(e) => setFirstName(e.target.value)} 
+                      placeholder="Enter your first name"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="lastName" className="block text-text-primary mb-2">Last Name (Optional)</label>
+                    <Input 
+                      id="lastName"
+                      type="text" 
+                      value={lastName} 
+                      onChange={(e) => setLastName(e.target.value)} 
+                      placeholder="Enter your last name"
+                    />
+                  </div>
+                </>
               )}
               
               <div>
@@ -97,8 +169,9 @@ export default function Auth() {
                 type="submit" 
                 variant="secondary" 
                 className="w-full"
+                disabled={loading || isLoading}
               >
-                {isLogin ? "Sign In" : "Create Account"}
+                {loading || isLoading ? "Processing..." : (isLogin ? "Sign In" : "Create Account")}
               </Button>
             </form>
             
@@ -107,7 +180,11 @@ export default function Auth() {
                 {isLogin ? "Don't have an account?" : "Already have an account?"}
                 <button 
                   type="button"
-                  onClick={() => setIsLogin(!isLogin)} 
+                  onClick={() => {
+                    setIsLogin(!isLogin);
+                    setErrorMsg("");
+                    setSuccessMsg("");
+                  }} 
                   className="text-sugarcane-yellow hover:underline ml-2"
                 >
                   {isLogin ? "Sign Up" : "Sign In"}
@@ -128,7 +205,7 @@ export default function Auth() {
               </div>
               
               <div className="mt-6 grid grid-cols-2 gap-4">
-                <Button variant="outline" className="flex items-center justify-center gap-2">
+                <Button variant="outline" className="flex items-center justify-center gap-2" type="button">
                   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -137,7 +214,7 @@ export default function Auth() {
                   </svg>
                   Google
                 </Button>
-                <Button variant="outline" className="flex items-center justify-center gap-2">
+                <Button variant="outline" className="flex items-center justify-center gap-2" type="button">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/>
                   </svg>
