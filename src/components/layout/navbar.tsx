@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Logo } from "../ui/logo";
 import { CartDropdown } from "../cart/cart-dropdown";
 import { UserProfileIcon } from "../user/user-profile-icon";
+import { useAuth } from "@/lib/context/auth-context";
 
 interface NavLink {
   name: string;
@@ -24,6 +25,7 @@ const navLinks: NavLink[] = [
 export const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { user } = useAuth();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass-card bg-white/10 backdrop-blur-md border-white/20 border-b px-6 py-3">
@@ -48,12 +50,18 @@ export const Navbar = () => {
 
           {/* User and Cart */}
           <div className="flex items-center space-x-4">
-            <Link
-              href="/auth"
-              className="hidden sm:block text-text-primary hover:text-sugarcane-yellow transition-colors duration-300 px-4 py-1.5 border border-sugarcane-yellow/50 rounded-full text-sm"
-            >
-              Sign In
-            </Link>
+            {user ? (
+              <span className="hidden sm:block text-text-primary hover:text-sugarcane-yellow transition-colors duration-300 px-4 py-1.5 border border-sugarcane-yellow/50 rounded-full text-sm">
+                {user.first_name} {user.last_name}
+              </span>
+            ) : (
+              <Link
+                href="/auth"
+                className="hidden sm:block text-text-primary hover:text-sugarcane-yellow transition-colors duration-300 px-4 py-1.5 border border-sugarcane-yellow/50 rounded-full text-sm"
+              >
+                Sign In
+              </Link>
+            )}
             <CartDropdown />
             <UserProfileIcon />
             

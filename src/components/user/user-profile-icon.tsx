@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/auth-context";
+import Link from "next/link";
 
 export const UserProfileIcon = () => {
   const router = useRouter();
@@ -66,18 +67,20 @@ export const UserProfileIcon = () => {
             <p className="text-sm font-medium text-gray-900">{user.first_name} {user.last_name}</p>
             <p className="text-xs text-gray-500">{user.email}</p>
           </div>
-          <a
+          <Link
             href="/profile"
             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            onClick={() => setIsDropdownOpen(false)}
           >
             Your Profile
-          </a>
-          <a
+          </Link>
+          <Link
             href="/orders"
             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            onClick={() => setIsDropdownOpen(false)}
           >
             Orders
-          </a>
+          </Link>
           <button
             onClick={handleLogout}
             className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
